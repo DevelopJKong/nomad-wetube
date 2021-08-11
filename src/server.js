@@ -7,9 +7,11 @@ import userRouter from "./routers/userRouter";
 
 const app = express();
 const logger = morgan("dev");
-const POST = 4010;
-app.use(logger);
+const POST = 4020;
 
+app.set("view engine","pug");
+app.set("views", process.cwd() + "/src/views");
+app.use(logger);
 app.use("/",globalRouter);
 app.use("/videos",videoRouter);
 app.use("/users",userRouter);

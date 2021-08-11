@@ -1,7 +1,9 @@
-export const trending = (res,req) => res.send("Home Page Videos");
-export const see = (res,req) => res.send("watch");
-export const edit = (res,req) => res.send("edit");
-export const search = (res,req) => res.send("search");
-export const upload =(res,req) => res.send("Upload");
-export const deleteVideo = (res,req) => res.send("Delete Videos")
-
+export const trending = (req, res) => res.render("home");
+export const see = (req, res) => res.render("watch");
+export const edit = (req, res) => res.render("edit");
+export const search = (req, res) => res.send("search");
+export const upload = (req, res) => res.send("Upload");
+export const deleteVideo = (req, res) => {
+  console.log(req.params);
+  return res.send("Delete Videos");
+};

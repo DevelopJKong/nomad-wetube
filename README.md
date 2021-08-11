@@ -7,7 +7,7 @@
 /search -> Search
 
 /users/:id -> See User
-/users/logout -> Log Out 
+/users/logout -> Log Out  
 /users/edit -> Edit user
 /users/delete -> Delete user
 
