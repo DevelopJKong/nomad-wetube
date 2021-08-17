@@ -7,7 +7,7 @@ import userRouter from "./routers/userRouter";
 
 const app = express();
 const logger = morgan("dev");
-const POST = 4020;
+const POST = 4050;
 
 app.set("view engine","pug");
 app.set("views", process.cwd() + "/src/views");
