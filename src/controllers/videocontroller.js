@@ -75,7 +75,7 @@ export const postUpload = async (req, res) => {
     //console.log(dbVideo);
     return res.redirect("/");
   } catch (error) {
-    console.log(error);
+    console.log(error); 
     return res.status(400).render("upload", {
       pageTitle: "Upload Video",
       errorMessage: error._message,
@@ -86,13 +86,11 @@ export const postUpload = async (req, res) => {
 
 /********************************deleteVideo 시작 부분입니다****************** */
 export const deleteVideo = async(req,res) => {
-  const { id } = req.params;
-  await Video.findByIdAndDelete(id);
-  console.log(id);
-  return res.redirect("/");
+    const { id } = req.params;
+    await Video.findByIdAndDelete(id);
+    console.log(id);
+    return res.redirect("/");
 }
-
-
 
 /********************************deleteVideo 끝 부분입니다****************** */
 
