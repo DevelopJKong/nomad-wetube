@@ -1,3 +1,4 @@
+
 import express from "express";
 import morgan from "morgan";
 import session from "express-session";
@@ -14,15 +15,15 @@ app.set("view engine", "pug");
 app.set("views", process.cwd() + "/src/views");
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));
+
+console.log(process.env.COOKIE_SECRET);
+
 app.use(
   session({
-    secret: "Hello!",
+    secret: process.env.COOKIE_SECRET,
     resave: false,
-    saveUnitialized: false,
-    cookie: {
-        maxAge: 20000,
-    },
-    store:MongoStore.create({mongoUrl: "mongodb://127.0.0.1:27017/wetube"})
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
   })
 );
 
