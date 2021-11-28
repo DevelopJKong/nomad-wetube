@@ -131,8 +131,8 @@ export const finishGithubLogin = async (req, res) => {
     }
     let user = await User.findOne({ email: emailObj.email });
     if (!user) {
-       user = await User.create({
-        avatarUrl:userData.avatar_url, 
+      user = await User.create({
+        avatarUrl: userData.avatar_url,
         name: userData.name ? userData.name : "Unknown",
         username: userData.login,
         email: emailObj.email,
@@ -149,18 +149,50 @@ export const finishGithubLogin = async (req, res) => {
   }
 };
 
-export const getEdit = (req, res) => { 
-  return res.render("edit-profile",{pageTitle:"Edit Profile"});
-}
-export const postEdit = (req,res) => { 
-  return res.render("edit-profile");
-}
+export const getEdit = (req, res) => {
+  return res.render("edit-profile", { pageTitle: "Edit Profile" });
+};
+export const postEdit = async (req, res) => {
+  const pageTitle ="edit-profile";
+  const {
+    session: {
+      user: { _id },
+    },
+    body: { name, email, username, location },
+  } = req;
+  
+  const exists = await User.findOne({
+    $or: [{ name }, { email }, { username }],
+  });
+  console.log(exists);
+  if (exists) {
+    console.log("hello");
+    return res.status(400).render("edit-profile", {
+      pageTitle,
+      errorMessage: "name,username,email,location please rewrite",
+    });
+  }
+  const updatedUser = await User.findByIdAndUpdate(
+    _id,
+    {
+      name,
+      email,
+      username,
+      location,
+    },
+    { new: true } //new:true를 설정해주면 findByIdAndUpdate가 업데이트된 데이터를 return 해준다
+  );
+
+
+  req.session.user = updatedUser;
+
+  return res.redirect("/users/edit");
+};
 
 export const remove = (req, res) => res.send("Delete user");
 
-
-export const logout = (req, res) =>{
+export const logout = (req, res) => {
   req.session.destroy();
   return res.redirect("/");
-}
+};
 export const see = (req, res) => res.send("See User");
