@@ -3,6 +3,11 @@ import fetch from "node-fetch";
 import bcrypt from "bcrypt";
 import { application } from "express";
 
+export const logout = (req, res) => {
+  req.session.destroy();
+  return res.redirect("/");
+};
+
 export const getJoin = (req, res) => res.render("join", { pageTitle: "Join" });
 export const postJoin = async (req, res) => {
   const pageTitle = "Join";
@@ -153,14 +158,14 @@ export const getEdit = (req, res) => {
   return res.render("edit-profile", { pageTitle: "Edit Profile" });
 };
 export const postEdit = async (req, res) => {
-  const pageTitle ="edit-profile";
+  const pageTitle = "edit-profile";
   const {
     session: {
       user: { _id },
     },
     body: { name, email, username, location },
   } = req;
-  
+
   const exists = await User.findOne({
     $or: [{ name }, { email }, { username }],
   });
@@ -183,16 +188,44 @@ export const postEdit = async (req, res) => {
     { new: true } //new:true를 설정해주면 findByIdAndUpdate가 업데이트된 데이터를 return 해준다
   );
 
-
   req.session.user = updatedUser;
 
   return res.redirect("/users/edit");
 };
 
-export const remove = (req, res) => res.send("Delete user");
-
-export const logout = (req, res) => {
-  req.session.destroy();
-  return res.redirect("/");
+export const getChangePassword = (req, res) => {
+  if (req.session.user.socialOnly === true) {
+    return res.redirect("/");
+  }
+  return res.render("users/change-password", { pageTitle: "change Password" });
 };
+export const postChangePassword = async (req, res) => {
+  const {
+    session: {
+      user: { _id },
+    },
+    body: { oldPassword, newPassword, newPasswordConfirmation },
+  } = req;
+  const user = await User.findById(_id);
+  const ok = await bcrypt.compare(oldPassword, user.password);
+  if (!ok) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "Change Password",
+      errorMessage: "The current password is incorrect",
+    });
+  }
+
+  if (newPassword !== newPasswordConfirmation) {
+    return res.status(400).render("users/change-password", {
+      pageTitle: "Change Password",
+      errorMessage: "The password does not match",
+    });
+  }
+  user.password = newPassword;
+  user.save();
+
+  //send notification
+  return res.redirect("/users/logout");
+};
+
 export const see = (req, res) => res.send("See User");
