@@ -161,9 +161,10 @@ export const postEdit = async (req, res) => {
   const pageTitle = "edit-profile";
   const {
     session: {
-      user: { _id },
+      user: { _id, avatarUrl },
     },
     body: { name, email, username, location },
+    file //정확하게 file:{path} 와 file 의 차이점은 뭐지? 왜 undefined를 허용하고 안 허용하는거지?
   } = req;
 
   const exists = await User.findOne({
@@ -171,7 +172,6 @@ export const postEdit = async (req, res) => {
   });
   console.log(exists);
   if (exists) {
-    console.log("hello");
     return res.status(400).render("edit-profile", {
       pageTitle,
       errorMessage: "name,username,email,location please rewrite",
@@ -180,6 +180,7 @@ export const postEdit = async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     _id,
     {
+      avatarUrl: file ? file.path : avatarUrl,
       name,
       email,
       username,
@@ -189,7 +190,7 @@ export const postEdit = async (req, res) => {
   );
 
   req.session.user = updatedUser;
-
+  console.log(avatarUrl);
   return res.redirect("/users/edit");
 };
 
@@ -202,10 +203,12 @@ export const getChangePassword = (req, res) => {
 export const postChangePassword = async (req, res) => {
   const {
     session: {
-      user: { _id },
+      user: { _id},
     },
     body: { oldPassword, newPassword, newPasswordConfirmation },
+    file,
   } = req;
+  console.log(file);
   const user = await User.findById(_id);
   const ok = await bcrypt.compare(oldPassword, user.password);
   if (!ok) {

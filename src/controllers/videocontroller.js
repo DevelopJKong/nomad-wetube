@@ -39,6 +39,7 @@ export const getEdit = async(req, res) => {
 
 
 export const postEdit = async(req, res) => {
+
   const { id } = req.params;
   const { title, description, hashtags } = req.body;
   const video = await Video.exists({ _id: id });
@@ -48,6 +49,7 @@ export const postEdit = async(req, res) => {
   await Video.findByIdAndUpdate(id, {
     title,
     description,
+
     hashtags: Video.formatHashtags(hashtags)
   });
   return res.redirect(`/videos/${id}`);
@@ -62,12 +64,14 @@ export const getUpload = (req, res) => {
 
 
 export const postUpload = async (req, res) => {
+  const {path : fileUrl} = req.file;
   const { title, description, hashtags } = req.body;
   console.log(title, description, hashtags);
   try {
     await Video.create({
       title,
       description,
+      fileUrl,
       hashtags: Video.formatHashtags(hashtags),
       
     });
