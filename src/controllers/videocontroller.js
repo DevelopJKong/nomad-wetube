@@ -31,10 +31,17 @@ return res.render("watch", { pageTitle: video.title ,video});
 
 export const getEdit = async(req, res) => {
   const { id } = req.params;
+  const {user:{_id}} = req.session;
   const video = await Video.findById(id);
   if(!video){
     return res.status(404).render("404",{pageTitle:"Video not found."})
    }
+
+  if(String(video.owner) !== String(_id)) {
+    return res.status(403).redirect("/");
+  }
+
+
   return res.render("edit", { pageTitle: `Editing${video.title}`,video });
 };
 
@@ -42,6 +49,7 @@ export const getEdit = async(req, res) => {
 export const postEdit = async(req, res) => {
 
   const { id } = req.params;
+  const {user:{_id}} = req.session;
   const { title, description, hashtags } = req.body;
   const video = await Video.exists({ _id: id });
   if (!video) {
@@ -53,6 +61,12 @@ export const postEdit = async(req, res) => {
 
     hashtags: Video.formatHashtags(hashtags)
   });
+
+  
+  if(String(video.owner) !== String(_id)) {
+    return res.status(403).redirect("/");
+  }
+
   return res.redirect(`/videos/${id}`);
 };
 /*******************getEdit & postEdit 끝 부분입니다************************** */
@@ -70,9 +84,8 @@ export const postUpload = async (req, res) => {
   } = req.session;
   const {path : fileUrl} = req.file;
   const { title, description, hashtags } = req.body;
-  console.log(title, description, hashtags);
   try {
-    await Video.create({
+    const newVideo = await Video.create({
       title,
       description,
       fileUrl,
@@ -80,6 +93,9 @@ export const postUpload = async (req, res) => {
       hashtags: Video.formatHashtags(hashtags),
       
     });
+    const user = await User.findById(_id);
+    user.videos.push(newVideo._id);
+    user.save();
     //video.save(); //save는 promise라 다 끝날때 까지 기다려줘야 한다
     //console.log(dbVideo);
     return res.redirect("/");
@@ -96,8 +112,17 @@ export const postUpload = async (req, res) => {
 /********************************deleteVideo 시작 부분입니다****************** */
 export const deleteVideo = async(req,res) => {
     const { id } = req.params;
+    const {user:{_id}} = req.session;
+
+    const video = await Video.findById(id);
+    if(!video) {
+      return res.status(404).render("404", { pageTitle: "Video not found." });
+    }
+    
+    if(String(video.owner) !== String(_id)) {
+      return res.status(403).redirect("/");
+    }
     await Video.findByIdAndDelete(id);
-    console.log(id);
     return res.redirect("/");
 }
 
