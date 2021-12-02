@@ -38,6 +38,7 @@ app.use((req, res, next) => {
 //app.use(express.json());
 app.use(localsMiddleware); // 순서가 매우 중요합니다 위에 있으면 출력해주지 않아요
 app.use("/uploads",express.static("uploads"));
+app.use("/static",express.static("assets"));
 app.use("/", rootRouter);
 app.use("/videos", videoRouter);
 app.use("/users", userRouter);
