@@ -12,7 +12,7 @@ import Video from "../models/Video";
 //await 가 대단한 이유는 database를 기다려주기 때문이다
 //async 라고 적어준이유는 안에 있는 await를 function 안에서 동작한다는것을 알려주기 위함이다
 export const home = async (req, res) => {
-  const videos = await Video.find({}).sort({createdAt:"desc"});
+  const videos = await Video.find({}).sort({createdAt:"desc"}).populate("owner");
   console.log(videos);
   return res.render("home", { pageTitle: "Home", videos });
 };
@@ -139,7 +139,7 @@ export const search = async(req,res) => {
 
         $regex:new RegExp(`${keyword}$`,"i")
       },
-    })
+    }).populate("owner");
   }
   return res.render("search",{pageTitle: "Search",videos});
 }
