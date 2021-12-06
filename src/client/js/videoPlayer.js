@@ -4,7 +4,6 @@
  * 화면을 클릭했을 때 비디오 중단, 재생
  */
 
-
 const video = document.querySelector("video");
 
 const playBtn = document.getElementById("play");
@@ -18,14 +17,13 @@ const totalTime = document.getElementById("totalTime");
 const timeline = document.getElementById("timeline");
 const fullScreenBtn = document.getElementById("fullScreen");
 const fullScreenIcon = fullScreenBtn.querySelector("i");
-const videoContainer= document.getElementById("videoContainer");
+const videoContainer = document.getElementById("videoContainer");
 const videoControls = document.getElementById("videoControls");
 
 let controlsTimeout = null;
 let controlsMovementTimeout = null;
 let volumeValue = 0.5;
 video.volume = volumeValue;
-
 
 const handlePlayClick = () => {
   // if the video is playing, pause it
@@ -54,65 +52,97 @@ const handleVolumeChange = (event) => {
     target: { value },
   } = event;
 
-  if(video.muted === false) {
+  if (video.muted === false) {
     video.muted = false;
-    muteBtn.innerText= "Mute";
+    muteBtn.innerText = "Mute";
   }
   volumeValue = value;
   video.volume = value;
 };
 const formatTime = (seconds) => {
-    return new Date(seconds * 1000).toISOString().substr(14, 5);
-}
+  return new Date(seconds * 1000).toISOString().substr(14, 5);
+};
 const handleLoadedMetadata = () => {
   totalTime.innerText = formatTime(Math.floor(video.duration));
   timeline.max = Math.floor(video.duration);
 };
 const handleTimeUpdate = () => {
-  currenTime.innerText = formatTime(Math.floor(video.currentTime));
+  currentTime.innerText = formatTime(Math.floor(video.currentTime));
   timeline.value = Math.floor(video.currentTime);
 };
+
+const handleTimelineChange = (event) => {
+  const {
+    target: { value },
+  } = event;
+  video.currentTime = value;
+};
+
+const handleFullScreen = () => {
+  const fullscreen = document.fullscreenElement; //fullscreenElement 에 대해서 정확하게 알아두어야 할거같다
+  if (fullscreen) {
+    document.exitFullscreen();
+    fullScreenIcon.classList = "fas fa-expand";
+  } else {
+    videoContainer.requestFullscreen();
+    fullScreenIcon.classList = "fas fa-compress";
+  }
+};
+
+const hideControls = () => videoControls.classList.remove("showing");
+
+const handleMouseMove = () => {
+  if (controlsTimeout) {
+    clearTimeout(controlsTimeout);
+    controlsTimeout = null;
+  }
+
+  if (controlsMovementTimeout) {
+    clearTimeout(controlsMovementTimeout);
+    controlsMovementTimeout = null;
+  }
+
+  videoControls.classList.add("showing");
+  controlsMovementTimeout = setTimeout(hideControls, 3000);
+};
+
+const handleMouseLeave = () => {
+  controlsTimeout = setTimeout(hideControls, 3000);
+};
+
+const handleEnded = () => {
+  const { id } = videoContainer.dataset;
+  fetch(`/api/videos/${id}/view`, {
+    method: "POST",
+  });
+};
+
+const handleKeypressFullScreen = (event) => {
+  const fullscreen = document.fullscreenElement; 
   
-  const handleTimelineChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    video.currentTime = value;
-  };
-  
-  const handleFullScreen = () => {
-    const fullscreen = document.fullscreenElement; //fullscreenElement 에 대해서 정확하게 알아두어야 할거같다
-    if(fullscreen) {
-      document.exitFullscreen();
-      fullScreenIcon.classList = "fas fa-expand";
+    if(event.keyCode === 102 || event.keyCode === 70) {
+      if (fullscreen) {
+        document.exitFullscreen();
+        fullScreenIcon.classList = "fas fa-expand";
+      } else {
+        videoContainer.requestFullscreen();
+        fullScreenIcon.classList = "fas fa-compress";
+      }
+     
+  }
+}
+
+const handleKeypressSpaceBar = (event) => {
+  event.preventDefault();
+  if(event.keyCode === 32) {
+    if (video.paused) {
+      video.play();
     } else {
-      videoContainer.requestFullscreen();
-      fullScreenIcon.classList = "fas fa-compress";
+      video.pause();
     }
+    playBtnIcon.classList = video.paused ? "fas fa-play" : "fas fa-pause"; 
   }
-
-  const hideControls = () => videoControls.classList.remove("showing");
-
-
-
-  const handleMouseMove = () => {
-    if(controlsTimeout) {
-      clearTimeout(controlsTimeout);
-      controlsTimeout = null;
-    }
-
-    if(controlsMovementTimeout) {
-      clearTimeout(controlsMovementTimeout);
-      controlsMovementTimeout = null;
-    }
-
-    videoControls.classList.add("showing");
-    controlsMovementTimeout = setTimeout(hideControls, 3000);
-  }
-
-  const handleMouseLeave = () => {
-    controlsTimeout = setTimeout(hideControls,3000);
-  }
+}
 
 
 
@@ -120,9 +150,13 @@ playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMuteClick);
 volumeRange.addEventListener("input", handleVolumeChange);
 
-video.addEventListener("loadeddata", handleLoadedMetadata);
+document.addEventListener("keypress",handleKeypressFullScreen);
+document.addEventListener("keypress",handleKeypressSpaceBar);
+
+video.addEventListener("loadedmetadata", handleLoadedMetadata);
 video.addEventListener("timeupdate", handleTimeUpdate);
+video.addEventListener("ended", handleEnded);
 videoContainer.addEventListener("mousemove", handleMouseMove);
-videoContainer.addEventListener("mouseleave", handleMouseLeave); 
+videoContainer.addEventListener("mouseleave", handleMouseLeave);
 timeline.addEventListener("input", handleTimelineChange);
-fullScreen.addEventListener("click",handleFullScreen);
+fullScreen.addEventListener("click", handleFullScreen);
