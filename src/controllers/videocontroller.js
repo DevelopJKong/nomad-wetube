@@ -41,6 +41,7 @@ export const getEdit = async (req, res) => {
   }
 
   if (String(video.owner) !== String(_id)) {
+    req.flash("error","You are not the owner of the video");
     return res.status(403).redirect("/");
   }
 
@@ -48,26 +49,25 @@ export const getEdit = async (req, res) => {
 };
 
 export const postEdit = async (req, res) => {
-  const { id } = req.params;
   const {
     user: { _id },
   } = req.session;
+  const { id } = req.params;
   const { title, description, hashtags } = req.body;
-  const video = await Video.exists({ _id: id });
+  const video = await Video.findById(id);
   if (!video) {
     return res.status(404).render("404", { pageTitle: "Video not found." });
+  }
+  if (String(video.owner) !== String(_id)) {
+    req.flash("error", "You are not the owner of the video.");
+    return res.status(403).redirect("/");
   }
   await Video.findByIdAndUpdate(id, {
     title,
     description,
-
     hashtags: Video.formatHashtags(hashtags),
   });
-
-  if (String(video.owner) !== String(_id)) {
-    return res.status(403).redirect("/");
-  }
-
+  req.flash("success", "Changes saved.");
   return res.redirect(`/videos/${id}`);
 };
 /*******************getEdit & postEdit 끝 부분입니다************************** */
@@ -81,13 +81,15 @@ export const postUpload = async (req, res) => {
   const {
     user: { _id },
   } = req.session;
-  const { path: fileUrl } = req.file;
+
+  const { video,thumb } = req.file;
   const { title, description, hashtags } = req.body;
   try {
     const newVideo = await Video.create({
       title,
       description,
-      fileUrl,
+      fileUrl:video[0].path,
+      thumbUrl:thumb[0].path,
       owner: _id,
       hashtags: Video.formatHashtags(hashtags),
     });

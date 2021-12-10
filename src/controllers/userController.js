@@ -5,7 +5,10 @@ import Video from "../models/Video";
 import { application } from "express";
 
 export const logout = (req, res) => {
-  req.session.destroy();
+  req.session.user = null;
+  res.locals.loggedInUser = req.session.user;
+  req.session.loggedIn = false;
+  req.flash("info", "Bye Bye");
   return res.redirect("/");
 };
 
@@ -197,6 +200,7 @@ export const postEdit = async (req, res) => {
 
 export const getChangePassword = (req, res) => {
   if (req.session.user.socialOnly === true) {
+    req.flash("error","Can't change password");
     return res.redirect("/");
   }
   return res.render("users/change-password", { pageTitle: "change Password" });
@@ -226,9 +230,12 @@ export const postChangePassword = async (req, res) => {
     });
   }
   user.password = newPassword;
-  user.save();
+  await user.save();  // 여기서 내가 기존에는 await를 사용하지 않고 했었네.. 근데 에러가 발생하지 않았다..
+                      // 왜 에러가 발생하지 않았던거지?
+  req.flash("info","Password updated");
 
   //send notification
+
   return res.redirect("/users/logout");
 };
 
