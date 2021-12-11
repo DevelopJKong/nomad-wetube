@@ -150,8 +150,9 @@ playBtn.addEventListener("click", handlePlayClick);
 muteBtn.addEventListener("click", handleMuteClick);
 volumeRange.addEventListener("input", handleVolumeChange);
 
-document.addEventListener("keypress",handleKeypressFullScreen);
-document.addEventListener("keypress",handleKeypressSpaceBar);
+//일단 주석을 해두고 다시 버그를 수정해보려고 합니다
+// document.addEventListener("keypress",handleKeypressFullScreen);
+// document.addEventListener("keypress",handleKeypressSpaceBar);
 
 video.addEventListener("loadedmetadata", handleLoadedMetadata);
 video.addEventListener("timeupdate", handleTimeUpdate);
