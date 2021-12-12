@@ -16,13 +16,13 @@ export const home = async (req, res) => {
   const videos = await Video.find({})
     .sort({ createdAt: "desc" })
     .populate("owner");
-  console.log(videos);
   return res.render("home", { pageTitle: "Home", videos });
 };
 
+
 export const watch = async (req, res) => {
   const { id } = req.params;
-  const video = await Video.findById(id).populate("owner");
+  const video = await Video.findById(id).populate("owner").populate("comments");
   if (!video) {
     return res.render("404", { pageTitle: "Video not found." });
   }
@@ -82,8 +82,8 @@ export const postUpload = async (req, res) => {
   const {
     user: { _id },
   } = req.session;
-
-  const { video, thumb } = req.file;
+  const { video, thumb } = req.files;
+  console.log(video, thumb);
   const { title, description, hashtags } = req.body;
   try {
     const newVideo = await Video.create({
@@ -97,8 +97,6 @@ export const postUpload = async (req, res) => {
     const user = await User.findById(_id);
     user.videos.push(newVideo._id);
     user.save();
-    //video.save(); //save는 promise라 다 끝날때 까지 기다려줘야 한다
-    //console.log(dbVideo);
     return res.redirect("/");
   } catch (error) {
     console.log(error);
@@ -174,6 +172,7 @@ export const createComment = async (req, res) => {
     owner: user._id,
     video: id
   }); 
-
-  return res.sendStatus(201); //201은 Created
+  video.comments.push(comment._id);
+  video.save();
+  return res.status(201).json({ newCommentId: comment._id }); //201은 Created
 };

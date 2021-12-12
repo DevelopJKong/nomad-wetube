@@ -71,6 +71,8 @@ const handleDownload = async () => {
   actionBtn.addEventListener("click", handleStart);
 };
 
+
+// 삭제 예정
 const handleStop = () => {
   actionBtn.innerText = "Download Recording";
   actionBtn.removeEventListener("click", handleStop);

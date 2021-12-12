@@ -123,7 +123,7 @@ export const finishGithubLogin = async (req, res) => {
         },
       })
     ).json();
-    console.log(userData);
+    //console.log(userData);
 
     const emailData = await (
       await fetch(`${apiUrl}/user/emails`, {
@@ -174,7 +174,7 @@ export const postEdit = async (req, res) => {
   const exists = await User.findOne({
     $or: [{ name }, { email }, { username }],
   });
-  console.log(exists);
+  //console.log(exists);
   if (exists) {
     return res.status(400).render("edit-profile", {
       pageTitle,
@@ -194,7 +194,7 @@ export const postEdit = async (req, res) => {
   );
 
   req.session.user = updatedUser;
-  console.log(avatarUrl);
+  //console.log(avatarUrl);
   return res.redirect("/users/edit");
 };
 
