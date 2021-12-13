@@ -3,6 +3,7 @@
 /uploads   
 .DS_Store
 /assets
+/build
 
 logs
 *.log
