@@ -2,7 +2,7 @@ import User from "../models/User";
 import Video from "../models/Video";
 import Comment from "../models/Comment";
 
-/*이름 수정 videocontroller=> videoController */
+/*이름 수정 videocontroller=> videoController build 에서도 수정 */
 /* Video.find({},(error,videos) => {
   if(error){
       return res.render("server-error");
