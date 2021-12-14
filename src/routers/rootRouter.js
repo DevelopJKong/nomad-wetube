@@ -1,6 +1,6 @@
 import express from "express";
 import { getJoin ,postJoin,getLogin,postLogin } from "../controllers/userController";
-import { home, search } from "../controllers/videocontroller";
+import { home, search } from "../controllers/videoController.js";
 import { publicOnlyMiddleware } from "../middlewares";
 
 const rootRouter = express.Router();
