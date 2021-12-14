@@ -11,14 +11,17 @@ header
                 li
                     a(href="/users/logout")  Log Out
                 li
-                    a(href=`/users/${loggedInUser._id}`) 
+                    a(href=`/users/${loggedInUser._id}`)
+                     
                         if loggedInUser.avatarUrl === ""
                             span 😎
                         else
-                            if loggedInUser.avartarUrl //- socialOnly라고 하면 됨 avartarUrl.includes("github")
-                                img.header__avatar(src=loggedInUser.avatarUrl)
-                            else 
-                                img.header__avatar(src="/"+ loggedInUser.avatarUrl)
+                            if loggedInUser.avatarUrl
+                                if loggedInUser.avatarUrl.includes("github")
+                                    img(src=loggedInUser.avatarUrl,crossorigin).header__avatar
+                                else                           
+                                    img(src=loggedInUser.avatarUrl,crossorigin).header__avatar
+                        
             else
                 li
                     a(href="/join")  Join

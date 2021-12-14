@@ -184,7 +184,7 @@ export const postEdit = async (req, res) => {
   const updatedUser = await User.findByIdAndUpdate(
     _id,
     {
-      avatarUrl: file ? file.path : avatarUrl,
+      avatarUrl: file ? file.location : avatarUrl,
       name,
       email,
       username,
@@ -194,7 +194,6 @@ export const postEdit = async (req, res) => {
   );
 
   req.session.user = updatedUser;
-  //console.log(avatarUrl);
   return res.redirect("/users/edit");
 };
 
@@ -248,7 +247,7 @@ export const see = async (req, res) => {
       model: "User",
     },
   });
-  console.log(user);
+  //console.log(user);
   if (!user) {
     return res.status(404).render("404", { pageTitle: "User not found" });
   }
