@@ -62,10 +62,17 @@ const handleVolumeChange = (event) => {
 const formatTime = (seconds) => {
   return new Date(seconds * 1000).toISOString().substr(14, 5);
 };
-const handleLoadedMetadata = () => {
+
+const handleLoadedData = () => {
   totalTime.innerText = formatTime(Math.floor(video.duration));
   timeline.max = Math.floor(video.duration);
-};
+  };
+
+const isHeroku = process.env.NODE_ENV === "production";
+  if (isHeroku && video) {
+  handleLoadedData();
+  }
+
 const handleTimeUpdate = () => {
   currentTime.innerText = formatTime(Math.floor(video.currentTime));
   timeline.value = Math.floor(video.currentTime);
@@ -154,7 +161,7 @@ volumeRange.addEventListener("input", handleVolumeChange);
 // document.addEventListener("keypress",handleKeypressFullScreen);
 // document.addEventListener("keypress",handleKeypressSpaceBar);
 
-video.addEventListener("loadedmetadata", handleLoadedMetadata);
+video.addEventListener("loadedmetadata", handleLoadedData);
 video.addEventListener("timeupdate", handleTimeUpdate);
 video.addEventListener("ended", handleEnded);
 videoContainer.addEventListener("mousemove", handleMouseMove);
